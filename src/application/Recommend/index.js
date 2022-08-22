@@ -7,6 +7,7 @@ import Scroll from '../../components/scroll/index';
 import { Content } from './style';
 import { forceCheck } from 'react-lazyload';
 import Loading from '../../components/loading/index';
+import { Outlet } from 'react-router-dom';// 利用 NavLink 组件进行路由跳转
 
 function Recommend (props){
   const { bannerList, recommendList, enterLoading } = props;
@@ -36,6 +37,7 @@ function Recommend (props){
         </div>
       </Scroll>
       { enterLoading ? <Loading></Loading> : null }
+      <Outlet/>
     </Content> 
   );
 }
