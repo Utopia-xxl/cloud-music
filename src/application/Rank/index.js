@@ -10,10 +10,13 @@ import {
 } from './style';
 import Scroll from '../../components/scroll/index';
 import { EnterLoading } from './../Singers/style';
-import { filterIndex, filterIdx } from '../../api/utils';
+import { filterIndex } from '../../api/utils';
 // import { renderRoutes } from 'react-router-config';
+import {useNavigate} from 'react-router-dom'
+import { Outlet } from 'react-router-dom';
 
 function Rank(props) {
+  const navigate = useNavigate()
   const { rankList:list, loading } = props;
 
   const { getRankListDataDispatch } = props;
@@ -31,12 +34,8 @@ function Rank(props) {
   let officialList = rankList.slice(0, globalStartIndex);
   let globalList = rankList.slice(globalStartIndex);
 
-  const enterDetail = (name) => {
-      const idx = filterIdx(name);
-      if(idx === null) {
-        alert("暂无相关数据");
-        return;
-      } 
+  const enterDetail = (detail) => {
+    navigate(`/rank/${detail.id}`)
   }
   const renderSongList = (list) => {
     return list.length ? (
@@ -53,9 +52,9 @@ function Rank(props) {
     return (
       <List globalRank={global}>
        {
-        list.map((item) => {
+        list.map((item,index) => {
           return (
-            <ListItem key={item.coverImgId} tracks={item.tracks} onClick={() => enterDetail(item.name)}>
+            <ListItem key={item.accountId+""+index} tracks={item.tracks} onClick={() => enterDetail(item)}>
               <div className="img_wrapper">
                 <img src={item.coverImgUrl} alt=""/>
                 <div className="decorate"></div>
@@ -82,7 +81,7 @@ function Rank(props) {
           { loading ? <EnterLoading><Loading></Loading></EnterLoading> : null }
         </div>
       </Scroll> 
-      {/* {renderRoutes(props.route.routes)} */}
+      <Outlet/>
     </Container>
     );
 }

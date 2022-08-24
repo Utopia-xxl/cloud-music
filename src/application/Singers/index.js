@@ -21,8 +21,11 @@ import  LazyLoad, {forceCheck} from 'react-lazyload';
 import Scroll from '../../components/scroll';
 import {connect} from 'react-redux';
 import Loading from '../../components/loading';
+import {useNavigate} from 'react-router-dom';
+import { Outlet } from 'react-router-dom';
 
 function Singers(props) {
+  const navigate = useNavigate()
   let [category, setCategory] = useState('');
   let [alpha, setAlpha] = useState('');
 
@@ -55,6 +58,10 @@ function Singers(props) {
     pullDownRefreshDispatch(category, alpha);
   };
 
+  const enterDetail = (detail) => {
+    navigate(`/singers/${detail.id}`)
+  }
+
   const renderSingerList = () => {
     const list = singerList ? singerList.toJS(): [];
     return (
@@ -62,7 +69,7 @@ function Singers(props) {
         {
           list.map((item, index) => {
             return (
-              <ListItem key={item.accountId+""+index}>
+              <ListItem key={item.accountId+""+index} onClick={() => enterDetail(item)}>
                 <div className="img_wrapper">
                   <LazyLoad placeholder={<img width="100%" height="100%" src={require('./singer.png')} alt="music"/>}>
                     <img src={`${item.picUrl}?param=300x300`} width="100%" height="100%" alt="music"/>
@@ -94,6 +101,7 @@ function Singers(props) {
           { renderSingerList() }
         </Scroll>
         { enterLoading ? <Loading></Loading> : null }
+        <Outlet/>
       </ListContainer>
     </div>
   )

@@ -6,6 +6,7 @@ import Recommend from '../application/Recommend';
 import Singers from '../application/Singers';
 import Rank from '../application/Rank';
 import Album from '../application/Album';
+import Singer from '../application/Singer';
 
 function MyRouter () {
   const element = useRoutes([
@@ -30,11 +31,24 @@ function MyRouter () {
         },
         {
           path:"/singers",
-          element:<Singers/>
+          element:<Singers/>,
+          children:[
+            {
+              path:"/singers/:id",
+              element: <Singer/>
+            }
+          ]
         },
         {
           path:"/rank",
-          element:<Rank/>
+          element:<Rank/>,
+          key: "rank",
+          children:[
+            {
+              path: "/rank/:id",
+              element: <Album/>
+            }
+          ]
         }
       ]
     }
