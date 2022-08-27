@@ -12,8 +12,10 @@ import {
 import MiniPlayer from './miniPlayer';
 import NormalPlayer from './normalPlayer';
 import { getSongUrl, isEmptyObject, shuffle, findIndex } from "../../api/utils";
+import { getLyricRequest } from "../../api/request";
 import { playMode } from '../../api/config';
 import Toast from "./../../baseUI/toast/index";
+import PlayList from './play-list/index';
 
 function Player(props) {
   //目前播放时间
@@ -46,7 +48,8 @@ function Player(props) {
     changeCurrentDispatch,
     changePlayListDispatch,//改变playList
     changeModeDispatch,//改变mode
-    toggleFullScreenDispatch
+    toggleFullScreenDispatch,
+    togglePlayListDispatch
   } = props;
   
   const playList = immutablePlayList.toJS();
@@ -73,10 +76,27 @@ function Player(props) {
       });
     });
     togglePlayingDispatch(true);//播放状态
+    getLyric (current.id);
     setCurrentTime(0);//从头开始播放
     setDuration((current.dt / 1000) | 0);//时长
   },[currentIndex]);
-
+  const currentLyric = useRef ();
+  const getLyric = id => {
+    let lyric = "";
+    getLyricRequest (id)
+      .then (data => {
+        console.log (data)
+        lyric = data.lrc.lyric;
+        if (!lyric) {
+          currentLyric.current = null;
+          return;
+        }
+      })
+      .catch (() => {
+        songReady.current = true;
+        audioRef.current.play ();
+      });
+  };
   useEffect(() => {
     playing ? audioRef.current.play() : audioRef.current.pause();
   }, [playing]);
@@ -170,6 +190,8 @@ function Player(props) {
           toggleFullScreen={toggleFullScreenDispatch}
           clickPlaying={clickPlaying}
           percent={percent}
+          togglePlayList={togglePlayListDispatch}
+
         /> 
         )
       }
@@ -188,6 +210,7 @@ function Player(props) {
           onProgressChange={onProgressChange}
           handlePrev={handlePrev}
           handleNext={handleNext}
+          togglePlayList={togglePlayListDispatch}
         />
         )
       }
@@ -196,6 +219,7 @@ function Player(props) {
         onTimeUpdate={updateTime}
         onEnded={handleEnd}
       ></audio>
+      <PlayList></PlayList>
       <Toast text={modeText} ref={toastRef}></Toast>  
     </div>
   )
