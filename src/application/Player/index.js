@@ -16,6 +16,8 @@ import { getLyricRequest } from "../../api/request";
 import { playMode } from '../../api/config';
 import Toast from "./../../baseUI/toast/index";
 import PlayList from './play-list/index';
+import Lyric from './../../api/lyric-parser';
+
 
 function Player(props) {
   //目前播放时间
@@ -34,14 +36,14 @@ function Player(props) {
 
   const {
     playing,
-    currentSong:immutableCurrentSong,
+    currentSong: immutableCurrentSong,
     currentIndex,
-    playList:immutablePlayList,
+    playList: immutablePlayList,
     mode,//播放模式
-    sequencePlayList:immutableSequencePlayList,//顺序列表
+    sequencePlayList: immutableSequencePlayList,//顺序列表
     fullScreen
   } = props;
-  
+
   const {
     togglePlayingDispatch,
     changeCurrentIndexDispatch,
@@ -51,11 +53,15 @@ function Player(props) {
     toggleFullScreenDispatch,
     togglePlayListDispatch
   } = props;
-  
+
   const playList = immutablePlayList.toJS();
   const sequencePlayList = immutableSequencePlayList.toJS();
   const currentSong = immutableCurrentSong.toJS();
-  
+  const [currentPlayingLyric, setPlayingLyric] = useState ("");
+  const currentLineNum = useRef (0);
+
+
+
   useEffect(() => {
     if (
       !playList.length ||
@@ -76,26 +82,40 @@ function Player(props) {
       });
     });
     togglePlayingDispatch(true);//播放状态
-    getLyric (current.id);
+    getLyric(current.id);
     setCurrentTime(0);//从头开始播放
     setDuration((current.dt / 1000) | 0);//时长
-  },[currentIndex]);
-  const currentLyric = useRef ();
+  }, [currentIndex]);
+
+  const handleLyric = ({lineNum, txt}) => {
+    if (!currentLyric.current) return;
+    currentLineNum.current = lineNum;
+    setPlayingLyric (txt);
+  };
+  
+  const currentLyric = useRef();
   const getLyric = id => {
-    let lyric = "";
-    getLyricRequest (id)
-      .then (data => {
-        console.log (data)
-        lyric = data.lrc.lyric;
-        if (!lyric) {
-          currentLyric.current = null;
-          return;
-        }
-      })
-      .catch (() => {
-        songReady.current = true;
-        audioRef.current.play ();
-      });
+  let lyric = "";
+  if (currentLyric.current) {
+    currentLyric.current.stop ();
+  }
+  // 避免 songReady 恒为 false 的情况
+  getLyricRequest (id)
+    .then (data => {
+      lyric = data.lrc.lyric;
+      if (!lyric) {
+        currentLyric.current = null;
+        return;
+      }
+      currentLyric.current = new Lyric (lyric, handleLyric);
+      currentLyric.current.play ();
+      currentLineNum.current = 0;
+      currentLyric.current.seek (0);
+    })
+    .catch (() => {
+      songReady.current = true;
+      audioRef.current.play ();
+    });
   };
   useEffect(() => {
     playing ? audioRef.current.play() : audioRef.current.pause();
@@ -104,6 +124,9 @@ function Player(props) {
   const clickPlaying = (e, state) => {
     e.stopPropagation();
     togglePlayingDispatch(state);
+    if (currentLyric.current) {
+      currentLyric.current.togglePlay (currentTime*1000);
+    }
   };
 
   const updateTime = e => {
@@ -116,6 +139,9 @@ function Player(props) {
     audioRef.current.currentTime = newTime;
     if (!playing) {
       togglePlayingDispatch(true);
+    }
+    if (currentLyric.current) {
+      currentLyric.current.seek (newTime * 1000);
     }
   };
   //一首歌循环
@@ -182,7 +208,7 @@ function Player(props) {
   };
   return (
     <div>
-      { isEmptyObject(currentSong) ? null : (
+      {isEmptyObject(currentSong) ? null : (
         <MiniPlayer
           song={currentSong}
           fullScreen={fullScreen}
@@ -192,10 +218,10 @@ function Player(props) {
           percent={percent}
           togglePlayList={togglePlayListDispatch}
 
-        /> 
-        )
+        />
+      )
       }
-      { isEmptyObject(currentSong) ? null : (
+      {isEmptyObject(currentSong) ? null : (
         <NormalPlayer
           song={currentSong}
           fullScreen={fullScreen}
@@ -211,8 +237,11 @@ function Player(props) {
           handlePrev={handlePrev}
           handleNext={handleNext}
           togglePlayList={togglePlayListDispatch}
+          currentLyric={currentLyric.current}
+          currentPlayingLyric={currentPlayingLyric}
+          currentLineNum={currentLineNum.current}
         />
-        )
+      )
       }
       <audio
         ref={audioRef}
@@ -220,7 +249,7 @@ function Player(props) {
         onEnded={handleEnd}
       ></audio>
       <PlayList></PlayList>
-      <Toast text={modeText} ref={toastRef}></Toast>  
+      <Toast text={modeText} ref={toastRef}></Toast>
     </div>
   )
 }
