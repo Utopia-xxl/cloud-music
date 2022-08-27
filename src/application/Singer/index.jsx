@@ -1,3 +1,4 @@
+import { useNavigate,useParams} from 'react-router-dom'
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { CSSTransition } from "react-transition-group";
 import { Container } from "./style";
@@ -9,12 +10,12 @@ import SongsList from "../SongsList";
 import { connect } from 'react-redux';
 import Loading from "./../../components/loading/index";
 import { getSingerInfo, changeEnterLoading } from "./store/actionCreators";
-import { useNavigate,useParams} from 'react-router-dom'
+import MusicNote from "../../baseUI/music-note";
 
 function Singer(props) {
+
   const navigate = useNavigate()
-  let { id } = useParams();
-  console.log(id)
+  
   const initialHeight = useRef(0);
   const [showStatus, setShowStatus] = useState(true);
 
@@ -22,8 +23,9 @@ function Singer(props) {
     artist: immutableArtist, 
     songs: immutableSongs, 
     loading,
+    songsCount
   } = props;
-  console.log(props)
+  
   const { getSingerDataDispatch } = props;
   
   const artist = immutableArtist.toJS();
@@ -35,12 +37,12 @@ function Singer(props) {
   const songScroll = useRef();
   const header = useRef();
   const layer = useRef();
+  const musicNoteRef = useRef();
 
   //往上偏移的尺寸，露出圆角
   const OFFSET = 5;
-  
-  useEffect(() => {
-    // const id = props.match.params.id;
+  let { id } = useParams();
+  useEffect(() => {   
     getSingerDataDispatch(id);
     let h = imageWrapper.current.offsetHeight;
     initialHeight.current = h;
@@ -94,6 +96,10 @@ function Singer(props) {
     setShowStatus(false);
   }, []);
 
+  const musicAnimation = (x, y) => {
+    musicNoteRef.current.startAnimation({ x, y });
+  };
+
   return (
     <CSSTransition
       in={showStatus}
@@ -103,7 +109,7 @@ function Singer(props) {
       unmountOnExit
       onExited={()=>navigate(-1)}
     >
-      <Container>
+      <Container play={songsCount}>
         <Header
           handleClick={setShowStatusFalse}
           title={artist.name}
@@ -122,10 +128,12 @@ function Singer(props) {
             <SongsList
               songs={songs}
               showCollect={false}
+              musicAnimation={musicAnimation}
             ></SongsList>
           </Scroll>
         </SongListWrapper>
         { loading ? (<Loading></Loading>) : null}
+        <MusicNote ref={musicNoteRef}></MusicNote>
       </Container>
     </CSSTransition>
   )
@@ -136,6 +144,7 @@ const mapStateToProps = state => ({
   artist: state.getIn(["singerInfo", "artist"]),
   songs: state.getIn(["singerInfo", "songsOfArtist"]),
   loading: state.getIn(["singerInfo", "loading"]),
+  songsCount: state.getIn(['player', 'playList']).size
 });
 // 映射dispatch到props上
 const mapDispatchToProps = dispatch => {

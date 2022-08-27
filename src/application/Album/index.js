@@ -11,8 +11,14 @@ import { connect } from 'react-redux';
 import { getAlbumList, changeEnterLoading } from './store/actionCreators';
 import Loading from '../../components/loading/index';
 import { useNavigate,useParams} from 'react-router-dom'
+import MusicNote from "../../baseUI/music-note/index";
 
 function Album(props) {
+  const musicNoteRef = useRef ();
+
+  const musicAnimation = (x, y) => {
+    musicNoteRef.current.startAnimation ({ x, y });
+  };
   const navigate = useNavigate()
   let { id } = useParams();
   const [showStatus, setShowStatus] = useState(true);
@@ -165,6 +171,7 @@ function Album(props) {
           : null
         }
         { enterLoading ? <Loading></Loading> : null}
+        <MusicNote ref={musicNoteRef}></MusicNote>
       </Container>
     </CSSTransition>
   )
