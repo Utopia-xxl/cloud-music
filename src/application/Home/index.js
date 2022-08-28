@@ -18,9 +18,9 @@ function Home (){
         <span className="iconfont search" onClick={() => navigate('/search')}>&#xe62b;</span>
       </Top>
       <Tab>
-        <NavLink to="/recommend" className="selected"><TabItem><span > 推荐 </span></TabItem></NavLink>
-        <NavLink to="/singers" className="selected"><TabItem><span > 歌手 </span></TabItem></NavLink>
-        <NavLink to="/rank" className="selected"><TabItem><span > 排行榜 </span></TabItem></NavLink>
+        <NavLink to="/recommend" className={({ isActive }) => {return isActive ? 'selected' : ''}}><TabItem><span > 推荐 </span></TabItem></NavLink>
+        <NavLink to="/singers" className={({ isActive }) => {return isActive ? 'selected' : ''}}><TabItem><span > 歌手 </span></TabItem></NavLink>
+        <NavLink to="/rank" className={({ isActive }) => {return isActive ? 'selected' : ''}}><TabItem><span > 排行榜 </span></TabItem></NavLink>
       </Tab>
       <Outlet/>
       <Player></Player>

@@ -12,6 +12,7 @@ import { getAlbumList, changeEnterLoading } from './store/actionCreators';
 import Loading from '../../components/loading/index';
 import { useNavigate,useParams} from 'react-router-dom'
 import MusicNote from "../../baseUI/music-note/index";
+import SongsList from '../SongsList'
 
 function Album(props) {
   const musicNoteRef = useRef ();
@@ -164,7 +165,14 @@ function Album(props) {
               <div>
                 { renderTopDesc() }
                 { renderMenu() }
-                { renderSongList() }
+                {/* { renderSongList() } */}
+                <SongsList
+                  songs={currentAlbum.tracks}
+                  collectCount={currentAlbum.subscribedCount}
+                  showCollect={true}
+                  showBackground={true}
+                  musicAnimation={musicAnimation}
+                ></SongsList>
               </div>
             </Scroll>
           )

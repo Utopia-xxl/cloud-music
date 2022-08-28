@@ -49,7 +49,7 @@ const SongsList = React.forwardRef((props, refs)=> {
     )
   };
   return (
-    <SongList ref={refs} showBackground={props.showBackground}>
+    <SongList ref={refs}>
       <div className="first_line">
         <div className="play_all" onClick={(e) => selectItem(e, 0)}>
           <i className="iconfont">&#xe6e3;</i>
