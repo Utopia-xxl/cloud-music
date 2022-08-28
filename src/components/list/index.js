@@ -6,7 +6,7 @@ import {
 } from './style';
 import LazyLoad from "react-lazyload";
 import { getCount } from "../../api/utils";
-import { useNavigate,NavLink } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 function RecommendList(props) {
   const navigate = useNavigate();

@@ -17,7 +17,8 @@ function MyRouter () {
       children:[
         {
           path:"/",
-          element: <Navigate to={"/recommend"}/>,
+          exact: true,
+          element: <Navigate to={"/recommend"} replace={true}/>,
         },
         {
           // index: true,

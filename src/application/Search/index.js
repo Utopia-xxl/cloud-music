@@ -12,7 +12,6 @@ import { List, ListItem, SongItem } from './style';
 import { getName } from '../../api/utils';
 import MusicalNote from '../../baseUI/music-note';
 import {useNavigate} from 'react-router-dom';
-import { createGlobalStyle } from 'styled-components';
 function Search(props) {
   const navigate = useNavigate();
   const [show, setShow] = useState(false);
