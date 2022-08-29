@@ -73,7 +73,7 @@ function ProgressBar(props) {
 
   const progressClick = (e) => {
     const rect = progressBar.current.getBoundingClientRect();
-    const offsetWidth = e.pageX - rect.left;
+    const offsetWidth = e.clientX - rect.left;
     _offset(offsetWidth);
     _changePercent();
   };

@@ -130,7 +130,6 @@ function Album(props) {
               <div>
                 { renderTopDesc() }
                 { renderMenu() }
-                {/* { renderSongList() } */}
                 <SongsList
                   songs={currentAlbum.tracks}
                   collectCount={currentAlbum.subscribedCount}
